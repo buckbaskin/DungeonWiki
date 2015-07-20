@@ -3,6 +3,7 @@ package webreader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.net.*;
@@ -13,7 +14,7 @@ public class WebReader {
 	
 	public static void main(String[] args) throws Exception {
 		WebReader wr = new WebReader();
-		wr.print_map("http://www.reddit.com/");
+		wr.print_map("https://en.wikipedia.org/wiki/Special:Random");
 	}
 	
 	// get tokens from a webpage
@@ -30,17 +31,31 @@ public class WebReader {
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
         	String[] splits = inputLine.split("></|><");
-        	System.out.println("split into "+splits.length+" lines");
+        	//System.out.println("split into "+splits.length+" lines");
         	for(String s : splits) {
-        		if(!s.equals("")) {
-		            String first = s.split("\\s|&|#")[0];
-		            if(first.equals("a")) {
-		            	//System.out.println(s);
-			            toReturn.add(s.trim().toLowerCase());
-		            } else {
-		            	//System.out.println("first|"+first);
-			            toReturn.add(first);
-		            }
+        		if(s.contains("<title>")) {
+        			System.out.println("title: "+s);
+        		}
+        		if(s.startsWith("<")) {
+        			s = s.substring(1);
+        		}
+        		if(!s.equals("") && !s.equals(" ") && !s.equals("\n")) {
+        			String[] splits2 = s.split("\\s|&|>");
+        			if(splits2.length > 0) {
+			            String first = splits2[0];
+			            if(first.equals("a")) {
+			            	System.out.println(" >>> link");
+				            toReturn.add(s.trim().toLowerCase());
+			            } else if (first.startsWith("title")) {
+			            	System.out.println("title2 ");
+			            } else if (first.contains("script") || first.contains("/*") || first.contains(".")) {
+			            	// System.out.println("script ignored");
+			            }
+			            else {
+			            	System.out.print(""+first+"\n");
+				            toReturn.add(first);
+			            }
+        			}
         		}
         	}
         }
@@ -58,7 +73,7 @@ public class WebReader {
 				map[i][j] = intifiy(it.next());
 			}
 		}
-		System.out.println("made an array");
+		//System.out.println("made an array");
 		//map = verify_paths(map);
 		
 		return map;
@@ -106,13 +121,16 @@ public class WebReader {
 		}
 		// if the line is a div -> wall
 		if(input.length() >=3 && input.substring(0, 3).equals("div")) {
-			return new Tile(10);
+			return new Tile(0);
+		}
+		if(input.length() >=4 && input.substring(0, 3).equals("span")) {
+			return new Tile(0);
 		}
 		// if the line isn't started by a tag
 //		if(input.length() >=1 && !input.substring(0, 1).equals("<")) {
 //			return new Tile(0);
 //		}
-		return new Tile(0);
+		return new Tile(13);
 	}
 	
 	public Tile[][] verify_paths(Tile[][] initial_map) {
@@ -192,14 +210,43 @@ public class WebReader {
 	}
 	
 	public void print_map(String url) throws Exception {
+		System.out.println("Title: "+url);
 		Tile[][] map = mapify(fetch(url));
+		System.out.print("  |");
 		for(int i = 0; i < map.length; i++) {
-			System.out.print("\n"+(i+1)+" [");
+			String s = "  "+(i+1)+"|";
+			System.out.print(s.substring(s.length()-3, s.length()));
+		}
+		for(int i = 0; i < map.length; i++) {
+//			System.out.print("\n"+(i+1)+" [");
+			System.out.print(("\n"+(i+1)+"   ").substring(0, 4));
 			for(int j = 0; j < map.length; j++) {
-				String intermediate = ("  "+map[i][j].val);
-				System.out.print(intermediate.substring(intermediate.length()-2)+"] [");
+				if(map[i][j].val == 1) {
+					System.out.print("WIN");
+				}
+				if(map[i][j].val == 12) {
+					System.out.print("$M$");
+				}
+				if(map[i][j].val == 13) {
+					System.out.print("-?-");
+				}
+				else if(map[i][j].val >= 10) {
+					System.out.print("-X-");
+				}
+				else if(map[i][j].val == 5) {
+					System.out.print("[T]");
+				}
+				else if(map[i][j].val == 4) {
+					System.out.print("[O]");
+				}
+				else {
+					System.out.print("   ");
+				}
+				
+//				String intermediate = ("  "+map[i][j].val);
+//				System.out.print(intermediate.substring(intermediate.length()-2)+"] [");
 			}
-			System.out.print("]");
+//			System.out.print("]");
 		}
 		System.out.print("\n");
 	}
