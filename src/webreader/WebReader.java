@@ -29,11 +29,13 @@ public class WebReader {
 
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
-        	String[] splits = inputLine.split("</.*>");
+        	String[] splits = inputLine.split("><");
         	System.out.println("split into "+splits.length+" lines");
         	for(String s : splits) {
-	            System.out.println(s);
-	            toReturn.add(s.trim().toLowerCase());
+        		if(!s.equals("")) {
+		            System.out.println(s);
+		            toReturn.add(s.trim().toLowerCase());
+        		}
         	}
         }
         in.close();
@@ -78,30 +80,30 @@ public class WebReader {
 		 * 12 = monster
 		 */
 		// Doors
-		if(input.substring(1, 2).equals("a")) {
+		if(input.length() >=2 && input.substring(1, 2).equals("a")) {
 			if(find_url(input).equals("https://en.wikipedia.org/wiki/Dungeon_crawl")) {
 				return new Tile(1);
 			}
 			return new Tile(4, find_url(input));
 		}
 		// Keys
-		if(input.contains("key")) {
+		if(input.length() >=3 && input.contains("key")) {
 			return new Tile(3);
 		}
 		// header teleport
-		if(input.substring(1, 2).equals("h")) {
+		if(input.length() >=2 && input.substring(1, 2).equals("h")) {
 			return new Tile(5);
 		}
 		// if the line is a img -> monster
-		if(!input.substring(1, 4).equals("img")) {
+		if(input.length() >=4 && input.substring(1, 4).equals("img")) {
 			return new Tile(12);
 		}
 		// if the line is a div -> wall
-		if(!input.substring(1, 4).equals("div")) {
+		if(input.length() >=4 && input.substring(1, 4).equals("div")) {
 			return new Tile(10);
 		}
 		// if the line isn't started by a tag
-		if(!input.substring(0, 1).equals("<")) {
+		if(input.length() >=1 && !input.substring(0, 1).equals("<")) {
 			return new Tile(0);
 		}
 		return new Tile(10);
