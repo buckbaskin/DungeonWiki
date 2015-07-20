@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.net.*;
+import java.awt.Color;
 import java.io.*;
 
 public class WebReader {
@@ -29,6 +30,7 @@ public class WebReader {
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
         	String[] splits = inputLine.split("</.*>");
+        	System.out.println("split into "+splits.length+" lines");
         	for(String s : splits) {
 	            System.out.println(s);
 	            toReturn.add(s.trim().toLowerCase());
@@ -75,10 +77,11 @@ public class WebReader {
 		 * 11 = wall
 		 * 12 = monster
 		 */
-		// Win url check
-		// TODO
 		// Doors
 		if(input.substring(1, 2).equals("a")) {
+			if(find_url(input).equals("https://en.wikipedia.org/wiki/Dungeon_crawl")) {
+				return new Tile(1);
+			}
 			return new Tile(4, find_url(input));
 		}
 		// Keys
@@ -129,55 +132,37 @@ public class WebReader {
 		frontier.add(new Pair(start_x, start_y));
 		
 		while(frontier.size() > 0) {
-			Pair current = frontier.get(r.nextInt(frontier.size()));
-			if (current.y+1 < initial_map.length) { Pair up = new Pair(current.x, current.y+1); }
-			Pair down = new Pair(current.x, current.y-1);
-			Pair left = new Pair(current.x-1, current.y);
-			Pair right = new Pair(current.x+1, current.y);
-			
+			Pair current = frontier.remove(r.nextInt(frontier.size()));
+			Pair next;
+			for(int i = 0; i < 4; i++) {
+				if(current.x+(-2+i)/2 >= 0 && current.x+(-2+i)/2 < initial_map.length) {
+					if(current.y+(-2+i)%2 >= 0 && current.y+(-2+i)%2 < initial_map.length) {
+						// next is in bounds
+						next = new Pair(current.x+(-2+i)/2, current.y+(-2+i)%2);
+						if(!visited.contains(next) && !blocked.contains(next) && !frontier.contains(next)) {
+							// then it hasn't been seen yet
+							Tile t = initial_map[next.x][next.y];
+							if(t.val >= 10) {
+								blocked.add(next);
+							} else if (t.val == 4) {
+								// door
+								return initial_map;
+							} else {
+								frontier.add(next);
+							}
+						}
+					}
+				}
+			}
 			visited.add(current);
-			// if a door is found, then return, done
-			if(initial_map[up.x][up.y].v() == 4 || initial_map[up.x][up.y].v() == 1) {
-				return initial_map;
-			}
-			if(initial_map[down.x][down.y].v() == 4 || initial_map[down.x][down.y].v() == 1) {
-				return initial_map;
-			}
-			if(initial_map[right.x][right.y].v() == 4 || initial_map[right.x][right.y].v() == 1) {
-				return initial_map;
-			}
-			if(initial_map[left.x][left.y].v() == 4 || initial_map[left.x][left.y].v() == 1) {
-				return initial_map;
-			}
-			
-			if(!frontier.contains(up) && !visited.contains(up) && !blocked.contains(up) && initial_map[up.x][up.y].v() < 10) {
-				frontier.add(up);
-			} else if(!frontier.contains(up) && !visited.contains(up) && !blocked.contains(up) && initial_map[up.x][up.y].v() >= 10) {
-				blocked.add(up);
-			}
-			if(!frontier.contains(down) && !visited.contains(down) && !blocked.contains(down) && initial_map[down.x][down.y].v() < 10) {
-				frontier.add(down);
-			} else if(!frontier.contains(down) && !visited.contains(down) && !blocked.contains(down) && initial_map[down.x][down.y].v() >= 10) {
-				blocked.add(down);
-			}
-			if(!frontier.contains(right) && !visited.contains(right) && !blocked.contains(right) && initial_map[right.x][right.y].v() < 10) {
-				frontier.add(right);
-			} else if(!frontier.contains(right) && !visited.contains(right) && !blocked.contains(right) && initial_map[right.x][right.y].v() >= 10) {
-				blocked.add(right);
-			}
-			if(!frontier.contains(left) && !visited.contains(left) && !blocked.contains(left) && initial_map[left.x][left.y].v() < 10) {
-				frontier.add(left);
-			} else if(!frontier.contains(left) && !visited.contains(left) && !blocked.contains(left) && initial_map[left.x][left.y].v() >= 10) {
-				blocked.add(left);
-			}
-			if(frontier.size() <= 0 && blocked.size() > 0) {
-				Pair toClear = blocked.get(r.nextInt(blocked.size()));
-				initial_map[toClear.x][toClear.y].val = 0;
-				initial_map[toClear.x][toClear.y].url = "";
-				frontier.add(toClear);
+			if(frontier.isEmpty() && !blocked.isEmpty()) {
+				Pair toClear = blocked.remove(r.nextInt(blocked.size()));
+				initial_map[toClear.x][toClear.y] = new Tile(0);
 			}
 		}
-		
+		System.out.println("No paths found.");
+		// generate a clear map with just links
+		// then return that
 		return initial_map;
 	}
 	
@@ -186,6 +171,7 @@ public class WebReader {
 		input = input.substring(start);
 		int end = input.indexOf("\"");
 		String short_form = input.substring(0, end);
+		// TODO check to see if it is /wiki/... and ignore others that are not
 		return "https://en.wikipedia.org"+short_form; // TODO
 	}
 	
@@ -205,6 +191,20 @@ public class WebReader {
 	public class Tile {
 		int val;
 		String url;
+		Color c;
+		
+		/* 
+		 * 0: Light Gray - Walkable 
+		 * 1: White - Win
+		 * 3: Yellow - key/bonus
+		 * 4: Blue - link/door
+		 * 5: Red - header/teleport
+		 * 9: Orange - Player
+		 * 10: Dark Gray - Wall
+		 * 11: Black - non-border wall (all 4 neighbors are impassible)
+		 * 12: Green - Monster
+		 * Purple - Title
+		 */
 		
 		public Tile(int value, String url) {
 			this.val = value;
@@ -215,6 +215,28 @@ public class WebReader {
 			}
 			if(url.equals("") && val == 4) {
 				val = 0;
+			}
+			switch(this.val) {
+				case 0: c = Color.LIGHT_GRAY;
+            	break;
+				case 1: c = Color.WHITE;
+        		break;
+				case 3: c = Color.YELLOW;
+        		break;
+				case 4: c = Color.BLUE;
+        		break;
+				case 5: c = Color.RED;
+        		break;
+				case 9: c = Color.ORANGE;
+        		break;
+				case 10: c = Color.DARK_GRAY;
+        		break;
+				case 11: c = Color.BLACK;
+        		break;
+				case 12: c = Color.GREEN;
+        		break;
+				default: c = Color.PINK;
+				break;
 			}
 		}
 		
