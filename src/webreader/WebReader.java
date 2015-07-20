@@ -29,12 +29,18 @@ public class WebReader {
 
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
-        	String[] splits = inputLine.split("><");
+        	String[] splits = inputLine.split("></|><");
         	System.out.println("split into "+splits.length+" lines");
         	for(String s : splits) {
         		if(!s.equals("")) {
-		            System.out.println(s);
-		            toReturn.add(s.trim().toLowerCase());
+		            String first = s.split("\\s|&|#")[0];
+		            if(first.equals("a")) {
+		            	//System.out.println(s);
+			            toReturn.add(s.trim().toLowerCase());
+		            } else {
+		            	//System.out.println("first|"+first);
+			            toReturn.add(first);
+		            }
         		}
         	}
         }
@@ -53,7 +59,7 @@ public class WebReader {
 			}
 		}
 		System.out.println("made an array");
-		map = verify_paths(map);
+		//map = verify_paths(map);
 		
 		return map;
 	}
@@ -80,7 +86,7 @@ public class WebReader {
 		 * 12 = monster
 		 */
 		// Doors
-		if(input.length() >=2 && input.substring(1, 2).equals("a")) {
+		if(input.length() >=1 && input.substring(0, 1).equals("a")) {
 			if(find_url(input).equals("https://en.wikipedia.org/wiki/Dungeon_crawl")) {
 				return new Tile(1);
 			}
@@ -91,22 +97,22 @@ public class WebReader {
 			return new Tile(3);
 		}
 		// header teleport
-		if(input.length() >=2 && input.substring(1, 2).equals("h")) {
+		if(input.length() >=1 && input.substring(0, 1).equals("h")) {
 			return new Tile(5);
 		}
 		// if the line is a img -> monster
-		if(input.length() >=4 && input.substring(1, 4).equals("img")) {
+		if(input.length() >=3 && input.substring(0, 3).equals("img")) {
 			return new Tile(12);
 		}
 		// if the line is a div -> wall
-		if(input.length() >=4 && input.substring(1, 4).equals("div")) {
+		if(input.length() >=3 && input.substring(0, 3).equals("div")) {
 			return new Tile(10);
 		}
 		// if the line isn't started by a tag
-		if(input.length() >=1 && !input.substring(0, 1).equals("<")) {
-			return new Tile(0);
-		}
-		return new Tile(10);
+//		if(input.length() >=1 && !input.substring(0, 1).equals("<")) {
+//			return new Tile(0);
+//		}
+		return new Tile(0);
 	}
 	
 	public Tile[][] verify_paths(Tile[][] initial_map) {
@@ -169,18 +175,26 @@ public class WebReader {
 	}
 	
 	public String find_url(String input) {
-		int start = input.indexOf("href=\"") + "href=\"".length();
+		int start = input.indexOf("href=\"");
+		if(start <= -1) {
+			return "";
+		}
+			input = input.substring(start+ "href=\"".length());
+		start = input.indexOf("/wiki/");
+		if(start <= -1) {
+			return "";
+		}
 		input = input.substring(start);
 		int end = input.indexOf("\"");
 		String short_form = input.substring(0, end);
-		// TODO check to see if it is /wiki/... and ignore others that are not
+		//System.out.println("find_url: "+short_form);
 		return "https://en.wikipedia.org"+short_form; // TODO
 	}
 	
 	public void print_map(String url) throws Exception {
 		Tile[][] map = mapify(fetch(url));
 		for(int i = 0; i < map.length; i++) {
-			System.out.print("\n[");
+			System.out.print("\n"+(i+1)+" [");
 			for(int j = 0; j < map.length; j++) {
 				String intermediate = ("  "+map[i][j].val);
 				System.out.print(intermediate.substring(intermediate.length()-2)+"] [");
