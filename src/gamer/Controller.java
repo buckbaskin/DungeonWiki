@@ -20,11 +20,15 @@ public class Controller {
 	
 	JPanel gameView;
 	
+	String current_url, last_url;
+	
 	public Controller(JPanel gameView) {
 		this.gameView = gameView;
 		wr = new WebReader();
 		try {
-			map = wr.build_map("https://en.wikipedia.org/wiki/Special:Random", "https://en.wikipedia.org/wiki/Special:Random");
+			current_url = "https://en.wikipedia.org/wiki/Special:Random";
+			last_url = "https://en.wikipedia.org/wiki/Special:Random";
+			map = wr.build_map(current_url, last_url);
 			wr.print_map(map);
 		} catch (Exception e) {
 			System.out.println("Error building game. Exiting...");
@@ -52,6 +56,7 @@ public class Controller {
 				break;
 			case 4: // door/link
 				System.out.println("You found a door to "+t.u());
+				door(t);
 				break;
 			case 5: // teleport
 				System.out.println("You found a teleport...");
@@ -90,6 +95,7 @@ public class Controller {
 				break;
 			case 4: // door/link
 				System.out.println("You found a door to "+t.u());
+				door(t);
 				break;
 			case 5: // teleport
 				System.out.println("You found a teleport...");
@@ -128,6 +134,7 @@ public class Controller {
 				break;
 			case 4: // door/link
 				System.out.println("You found a door to "+t.u());
+				door(t);
 				break;
 			case 5: // teleport
 				System.out.println("You found a teleport...");
@@ -166,6 +173,7 @@ public class Controller {
 				break;
 			case 4: // door/link
 				System.out.println("You found a door to "+t.u());
+				door(t);
 				break;
 			case 5: // teleport
 				System.out.println("You found a teleport...");
@@ -189,6 +197,20 @@ public class Controller {
 			// Take no action because on left border
 		}
 		System.out.println("(x,y) ("+u_x+","+u_y+")");
+	}
+	
+	public void door(Tile t) {
+		String url = t.u();
+		last_url = current_url;
+		current_url = url;
+		try {
+			map = wr.build_map(current_url, last_url);
+			u_x = map.length/2;
+			u_y = map.length/2;
+		} catch (Exception e) {
+			System.out.println(" Error building new map. Please try again later");
+			System.exit(0);
+		}
 	}
 	
 	public class GameKeyListener implements KeyListener {
@@ -226,8 +248,8 @@ public class Controller {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mini Tennis");
-		JPanel example = new View(50);
+		JFrame frame = new JFrame("Wiki Dungeon");
+		JPanel example = new View(20);
 		Controller c = new Controller(example);
 		((View) example).controller(c);
 		frame.add(example);
