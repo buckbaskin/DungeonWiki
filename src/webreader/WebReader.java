@@ -48,7 +48,7 @@ public class WebReader {
 			            String first = splits2[0];
 			            if(first.equals("a")) {
 			            	//System.out.println(" >>> "+s.trim());
-			            	toReturn.add(s.trim().toLowerCase());
+			            	toReturn.add(s.trim());
 			            } else if (first.startsWith("title")) {} 
 			            else if (first.contains("script") || first.contains("/*") || first.contains(".")) {}
 			            else {

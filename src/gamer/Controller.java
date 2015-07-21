@@ -2,6 +2,13 @@ package gamer;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -22,14 +29,38 @@ public class Controller {
 	
 	String current_url, last_url;
 	
+	File f;
+	
 	public Controller(JPanel gameView) {
 		this.gameView = gameView;
 		wr = new WebReader();
+		//System.out.println(System.getProperty("user.dir"));
+		f = new File(".\\src\\save_game");
+		current_url = "https://en.wikipedia.org/wiki/Special:Random";
+		last_url = "https://en.wikipedia.org/wiki/Special:Random";
+		
+		BufferedReader br = null;
 		try {
-			current_url = "https://en.wikipedia.org/wiki/Special:Random";
-			last_url = "https://en.wikipedia.org/wiki/Special:Random";
+			br = new BufferedReader(new FileReader(f));
+			current_url = br.readLine();
+		//	System.out.println("read url "+current_url+" from file "+f.getAbsolutePath());
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				br.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
 			map = wr.build_map(current_url, last_url);
-			wr.print_map(map);
+			// wr.print_map(map);
 		} catch (Exception e) {
 			System.out.println("Error building game. Exiting...");
 			System.exit(0);
@@ -40,6 +71,8 @@ public class Controller {
 		listener = new GameKeyListener(this);
 		this.gameView.addKeyListener(listener);
 		this.gameView.setFocusable(true);
+		
+		f = new File("./save_game");
 	}
 	
 	public void left() {
@@ -79,7 +112,7 @@ public class Controller {
 		} else {
 			// Take no action because on left border
 		}
-		System.out.println("(x,y) ("+u_x+","+u_y+")");
+		// System.out.println("(x,y) ("+u_x+","+u_y+")");
 	}
 	public void right() {
 		// System.out.println("right");
@@ -118,7 +151,7 @@ public class Controller {
 		} else {
 			// Take no action because on left border
 		}
-		System.out.println("(x,y) ("+u_x+","+u_y+")");
+		// System.out.println("(x,y) ("+u_x+","+u_y+")");
 	}
 	public void up() {
 		// System.out.println("up");
@@ -157,7 +190,7 @@ public class Controller {
 		} else {
 			// Take no action because on left border
 		}
-		System.out.println("(x,y) ("+u_x+","+u_y+")");
+		// System.out.println("(x,y) ("+u_x+","+u_y+")");
 	}
 	public void down() {
 		// System.out.println("down");
@@ -196,7 +229,7 @@ public class Controller {
 		} else {
 			// Take no action because on left border
 		}
-		System.out.println("(x,y) ("+u_x+","+u_y+")");
+		// System.out.println("(x,y) ("+u_x+","+u_y+")");
 	}
 	
 	public void door(Tile t) {
@@ -211,6 +244,22 @@ public class Controller {
 			System.out.println(" Error building new map. Please try again later");
 			System.exit(0);
 		}
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(".\\src\\save_game"));
+			writer.write(url);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		((View) gameView).setTitle(url);
 	}
 	
 	public class GameKeyListener implements KeyListener {
@@ -252,6 +301,7 @@ public class Controller {
 		JPanel example = new View(20);
 		Controller c = new Controller(example);
 		((View) example).controller(c);
+		((View) example).setTitle(c.current_url);
 		frame.add(example);
 		frame.setSize(600, 600);
 		frame.setVisible(true);

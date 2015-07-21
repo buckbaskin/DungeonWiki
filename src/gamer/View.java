@@ -19,9 +19,11 @@ public class View extends JPanel {
 	Controller c;
 	
 	int size;
+	String title;
 	
 	public View(int size) {
 		this.size = size;
+		this.title = "";
 	}
 	
 	public void controller(Controller c) {
@@ -30,7 +32,9 @@ public class View extends JPanel {
 	public Controller controller() {
 		return this.c;
 	}
-	
+	public void setTitle(String t) {
+		title = t;
+	}
 	public void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		int height = (int) this.getSize().getHeight();
@@ -63,7 +67,10 @@ public class View extends JPanel {
 		int width = (int) this.getSize().getWidth();
 		int x = width/2 - size/2;
 		int y = height/2 - size/2;
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, size+title.length()*6, (int) (size*1.4));
 		g.setColor(Color.ORANGE);
 		g.fillOval(x+5, y+5, size-10, size-10);
+		g.drawString(title, size, size);
 	}
 }
