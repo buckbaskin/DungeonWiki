@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import webreader.WebReader;
@@ -294,18 +293,6 @@ public class Controller {
 			}
 			c.gameView.repaint();
 		}
-	}
-	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("Wiki Dungeon");
-		JPanel example = new View(20);
-		Controller c = new Controller(example);
-		((View) example).controller(c);
-		((View) example).setTitle(c.current_url);
-		frame.add(example);
-		frame.setSize(600, 600);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 }
