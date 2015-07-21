@@ -8,4 +8,6 @@ The game is a basic rendition of a dungeon crawler that uses Wikipedia pages to 
  - img tags are monsters
  - a line with the word key in it will give bonus points (not yet implemented)
  - divs form walls/blocks, and there is some random chance that an uncategorized line will also create a wall.
+
+
 It is worth noting that the html is split on a hackish regex, so a line in the code's eyes is not necessarily a line in html. Also, there can be some tuning involved (with the regex and probabilistic wall generation) but for now it works well in that you can move around to a few doors from any given spawn (at least in practice).
