@@ -31,7 +31,6 @@ public class WebReader {
         String inputLine;
         while ((inputLine = in.readLine()) != null) {
         	String[] splits = inputLine.split("></|><");
-        	//System.out.println("split into "+splits.length+" lines");
         	for(String s : splits) {
         		if(s.contains("<title>")) {
         			System.out.println("title: "+s);
@@ -44,15 +43,11 @@ public class WebReader {
         			if(splits2.length > 0) {
 			            String first = splits2[0];
 			            if(first.equals("a")) {
-			            	System.out.println(" >>> link");
-				            toReturn.add(s.trim().toLowerCase());
-			            } else if (first.startsWith("title")) {
-			            	System.out.println("title2 ");
-			            } else if (first.contains("script") || first.contains("/*") || first.contains(".")) {
-			            	// System.out.println("script ignored");
-			            }
+			            	//System.out.println(" >>> "+s.trim());
+			            	toReturn.add(s.trim().toLowerCase());
+			            } else if (first.startsWith("title")) {} 
+			            else if (first.contains("script") || first.contains("/*") || first.contains(".")) {}
 			            else {
-			            	System.out.print(""+first+"\n");
 				            toReturn.add(first);
 			            }
         			}
@@ -64,7 +59,7 @@ public class WebReader {
 	}
 	
 	
-	public Tile[][] mapify(List<String> input) {
+	public Tile[][] mapify(List<String> input, String old_url) {
 		int size = (int) Math.floor(Math.sqrt(input.size()));
 		Tile[][] map = new Tile[size][size];
 		Iterator<String> it = input.iterator();
@@ -73,8 +68,9 @@ public class WebReader {
 				map[i][j] = intifiy(it.next());
 			}
 		}
-		//System.out.println("made an array");
-		//map = verify_paths(map);
+		map[0][0] = new Tile(4, old_url);
+		map[0][1] = new Tile(0);
+		map[1][0] = new Tile(0);
 		
 		return map;
 	}
@@ -130,11 +126,20 @@ public class WebReader {
 //		if(input.length() >=1 && !input.substring(0, 1).equals("<")) {
 //			return new Tile(0);
 //		}
-		return new Tile(13);
+		int rando = new Random().nextInt(12);
+		if(rando <= 1) {
+			rando = 0;
+		}
+		if(rando <= 6) {
+			rando = 0;
+		}
+		else {
+			rando = 10;
+		}
+		return new Tile(rando);
 	}
 	
 	public Tile[][] verify_paths(Tile[][] initial_map) {
-		System.out.println("verify paths");
 		Tile[][] new_map = initial_map;
 		
 		Random r = new Random();
@@ -193,11 +198,14 @@ public class WebReader {
 	}
 	
 	public String find_url(String input) {
+		if(input.contains(":")) {
+			return "";
+		}
 		int start = input.indexOf("href=\"");
 		if(start <= -1) {
 			return "";
 		}
-			input = input.substring(start+ "href=\"".length());
+		input = input.substring(start+ "href=\"".length());
 		start = input.indexOf("/wiki/");
 		if(start <= -1) {
 			return "";
@@ -205,13 +213,18 @@ public class WebReader {
 		input = input.substring(start);
 		int end = input.indexOf("\"");
 		String short_form = input.substring(0, end);
-		//System.out.println("find_url: "+short_form);
+		//System.out.println(" >>> find_url: "+short_form);
 		return "https://en.wikipedia.org"+short_form; // TODO
 	}
 	
+	public Tile[][] build_map(String new_url, String old_url) throws Exception {
+		System.out.println("Title: "+new_url);
+		Tile[][] map = mapify(fetch(new_url), old_url);
+		return map;
+	}
+	
 	public void print_map(String url) throws Exception {
-		System.out.println("Title: "+url);
-		Tile[][] map = mapify(fetch(url));
+		Tile[][] map = build_map(url, "https://en.wikipedia.org/wiki/Special:Random");
 		System.out.print("  |");
 		for(int i = 0; i < map.length; i++) {
 			String s = "  "+(i+1)+"|";
