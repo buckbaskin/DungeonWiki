@@ -17,10 +17,16 @@ public class WebReader {
 	
 	// get tokens from a webpage
 	public List<String> fetch() throws Exception {
-		return fetch("https://en.wikipedia.org/wiki/Special:Random");
+		try {
+			return fetch("https://en.wikipedia.org/wiki/Special:Random");
+		} catch (Exception e) {
+			System.out.println("Exception fetching /wiki/Special:Random");
+			throw e;
+		}
 	}
 	
 	public List<String> fetch(String url) throws Exception {
+		try {
 		List<String> toReturn = new ArrayList<String>();
 		URL read = new URL(url);
         BufferedReader in = new BufferedReader(
@@ -54,6 +60,10 @@ public class WebReader {
         }
         in.close();
         return toReturn;
+		} catch (Exception e) {
+			System.out.println("Exception fetching "+url);
+			throw e;
+		}
 	}
 	
 	
@@ -198,7 +208,7 @@ public class WebReader {
 	}
 	
 	public String find_url(String input) {
-		if(input.contains(":")) {
+		if(input.contains(":") || input.contains("#") || input.contains("%")) {
 			return "";
 		}
 		int start = input.indexOf("href=\"");
