@@ -1,9 +1,7 @@
 package webreader;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.net.*;
@@ -213,8 +211,7 @@ public class WebReader {
 		input = input.substring(start);
 		int end = input.indexOf("\"");
 		String short_form = input.substring(0, end);
-		//System.out.println(" >>> find_url: "+short_form);
-		return "https://en.wikipedia.org"+short_form; // TODO
+		return "https://en.wikipedia.org"+short_form;
 	}
 	
 	public Tile[][] build_map(String new_url, String old_url) throws Exception {
