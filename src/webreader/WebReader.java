@@ -220,6 +220,9 @@ public class WebReader {
 		if(start <= -1) {
 			return "";
 		}
+		if(start != 0) {
+			return "";
+		}
 		input = input.substring(start);
 		int end = input.indexOf("\"");
 		String short_form = input.substring(0, end);
