@@ -66,9 +66,11 @@ public class WebReader {
 				map[i][j] = intifiy(it.next());
 			}
 		}
-		map[0][0] = new Tile(4, old_url);
-		map[0][1] = new Tile(0);
-		map[1][0] = new Tile(0);
+		map[map.length/2][map.length/2] = new Tile(4, old_url);
+		map[map.length/2][map.length/2+1] = new Tile(0);
+		map[map.length/2][map.length/2-1] = new Tile(0);
+		map[map.length/2+1][map.length/2] = new Tile(0);
+		map[map.length/2-1][map.length/2] = new Tile(0);
 		
 		return map;
 	}
@@ -222,41 +224,41 @@ public class WebReader {
 	
 	public void print_map(String url) throws Exception {
 		Tile[][] map = build_map(url, "https://en.wikipedia.org/wiki/Special:Random");
+		print_map(map);
+	}
+	
+	public void print_map(Tile[][] map) {
 		System.out.print("  |");
 		for(int i = 0; i < map.length; i++) {
-			String s = "  "+(i+1)+"|";
+			String s = "  "+(i)+"|";
 			System.out.print(s.substring(s.length()-3, s.length()));
 		}
 		for(int i = 0; i < map.length; i++) {
-//			System.out.print("\n"+(i+1)+" [");
-			System.out.print(("\n"+(i+1)+"   ").substring(0, 4));
+//			System.out.print("\n"+(i)+" [");
+			System.out.print(("\n"+(i)+"   ").substring(0, 4));
 			for(int j = 0; j < map.length; j++) {
-				if(map[i][j].val == 1) {
+				if(map[j][i].val == 1) {
 					System.out.print("WIN");
 				}
-				if(map[i][j].val == 12) {
+				if(map[j][i].val == 12) {
 					System.out.print("$M$");
 				}
-				if(map[i][j].val == 13) {
+				if(map[j][i].val == 13) {
 					System.out.print("-?-");
 				}
-				else if(map[i][j].val >= 10) {
+				else if(map[j][i].val >= 10) {
 					System.out.print("-X-");
 				}
-				else if(map[i][j].val == 5) {
+				else if(map[j][i].val == 5) {
 					System.out.print("[T]");
 				}
-				else if(map[i][j].val == 4) {
+				else if(map[j][i].val == 4) {
 					System.out.print("[O]");
 				}
 				else {
 					System.out.print("   ");
 				}
-				
-//				String intermediate = ("  "+map[i][j].val);
-//				System.out.print(intermediate.substring(intermediate.length()-2)+"] [");
 			}
-//			System.out.print("]");
 		}
 		System.out.print("\n");
 	}
@@ -264,7 +266,7 @@ public class WebReader {
 	public class Tile {
 		int val;
 		String url;
-		Color c;
+		public Color c;
 		
 		/* 
 		 * 0: Light Gray - Walkable 
@@ -319,6 +321,9 @@ public class WebReader {
 		
 		public int v() {
 			return val;
+		}
+		public String u() {
+			return url;
 		}
 	}
 	public class Pair {
