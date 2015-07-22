@@ -70,7 +70,7 @@ public class View extends JPanel {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, size+title.length()*6, (int) (size*1.4));
 		g.setColor(Color.ORANGE);
-		g.fillOval(x+5, y+5, size-10, size-10);
+		g.fillOval(x+2, y+2, size-4, size-4);
 		g.drawString(title, size, size);
 	}
 }
