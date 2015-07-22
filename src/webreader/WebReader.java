@@ -37,7 +37,7 @@ public class WebReader {
         	String[] splits = inputLine.split("></|><");
         	for(String s : splits) {
         		if(s.contains("<title>")) {
-        			System.out.println("title: "+s);
+        			// System.out.println("title: "+s);
         		}
         		if(s.startsWith("<")) {
         			s = s.substring(1);
@@ -230,7 +230,7 @@ public class WebReader {
 	}
 	
 	public Tile[][] build_map(String new_url, String old_url) throws Exception {
-		System.out.println("Title: "+new_url);
+		// System.out.println("Title: "+new_url);
 		Tile[][] map = mapify(fetch(new_url), old_url);
 		return map;
 	}
