@@ -258,6 +258,20 @@ public class Controller {
 				e.printStackTrace();
 			}
 		}
+		try {
+			writer = new BufferedWriter(new FileWriter(".\\src\\visit_list", true));
+			writer.write(url+"\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		((View) gameView).setTitle(url);
 	}
 	
